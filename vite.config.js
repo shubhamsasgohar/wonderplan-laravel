@@ -7,8 +7,8 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
-                'resources/theme/adminlte.css',
-                'resources/theme/adminlte.js',
+                'resources/theme/css/adminlte.css',
+                'resources/theme/js/adminlte.js',
             ],
             refresh: true,
         }),
