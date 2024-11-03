@@ -47,6 +47,14 @@ class BlogController extends Controller
             'creator_image' => 'nullable|string|max:255',
         ]);
 
+            // Generate slug from the title
+            $slug = Str::slug($request->title);
+            // Ensure unique slug by appending a number if it already exists
+            $existingCount = Blog::where('slug', 'LIKE', "{$slug}%")->count();
+            if ($existingCount > 0) {
+                $slug .= '-' . ($existingCount + 1);
+            }
+
             // Convert cover image to WebP format
             if ($request->hasFile('cover_img')) {
                 $file = $request->file('cover_img');
@@ -67,6 +75,7 @@ class BlogController extends Controller
             // Attempt to save the blog data to the database
             $blog = Blog::create([
                 'title' => $request->title,
+                'slug' => $slug,
                 'description' => $request->description,
                 'cover_img' => $coverImagePath, // Path in R2
                 'content' => $request->content_data,

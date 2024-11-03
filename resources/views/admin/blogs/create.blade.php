@@ -9,11 +9,29 @@
         }
     </style>
 
-    <div class="col-md-12"> <!--begin::Quick Example-->
-        <div class="card card-primary card-outline mb-4"> <!--begin::Header-->
-            <div class="card-header">
-                <div class="card-title">Create Blog</div>
+    <div class="app-content-header"> <!--begin::Container-->
+        <div class="container-fluid"> <!--begin::Row-->
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Create Blog</h3>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                           Manage Blogs
+                        </li>
+                    </ol>
+                </div>
             </div>
+        </div>
+    </div>
+    <div class="app-content">
+        <div class="col-md-12"> <!--begin::Quick Example-->
+            <div class="card card-primary card-outline mb-4"> <!--begin::Header-->
+                <div class="card-header">
+                    <div class="card-title">Create Blog</div>
+                </div>
                 <div class="card-body">
                     <form action="{{ route('admin.blogs.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
@@ -65,16 +83,14 @@
                         </div>
                     </form>
                 </div>
+            </div>
         </div>
     </div>
+
+
     <!-- Include CKEditor -->
     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
     <script>
-        // ClassicEditor
-        //     .create(document.querySelector('#content-editor'))
-        //     .catch(error => {
-        //         console.error(error);
-        //     });
         ClassicEditor
             .create(document.querySelector('#content-editor'), {
                 height: '500px',

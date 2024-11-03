@@ -6,6 +6,10 @@
 {{--            <li class="nav-item d-none d-md-block"> <a href="#" class="nav-link">Contact</a> </li>--}}
 {{--        </ul> --}}
 
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+            @csrf
+        </form>
+
         <ul class="navbar-nav ms-auto"> <!--begin::Navbar Search-->
             <li class="nav-item dropdown user-menu">
                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
@@ -21,7 +25,10 @@
                     </li>
                     <li class="user-footer">
                         <a href="#" class="btn btn-default btn-flat">Profile</a>
-                        <a href="#" class="btn btn-default btn-flat float-end">Sign out</a>
+                        <a href="#" class="btn btn-default btn-flat float-end"
+                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            Sign out
+                        </a>
                     </li>
                 </ul>
             </li>
