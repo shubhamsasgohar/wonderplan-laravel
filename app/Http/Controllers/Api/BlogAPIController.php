@@ -20,6 +20,7 @@ class BlogAPIController extends Controller
         $formattedBlogs = $blogs->map(function ($blog) {
             return [
                 'id' => $blog->id,
+                'slug' => $blog->slug,
                 'title' => $blog->title,
                 'description' => $blog->description,
                 'coverURL' => Storage::disk('r2')->url($blog->cover_img),
@@ -48,6 +49,7 @@ class BlogAPIController extends Controller
         // Format the blog details
         $formattedBlog = [
             'id' => $blog->id,
+            'slug' => $blog->slug,
             'title' => $blog->title,
             'description' => $blog->description,
             'coverURL' => Storage::disk('r2')->url($blog->cover_img),
