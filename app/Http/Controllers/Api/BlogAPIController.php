@@ -10,12 +10,10 @@ use Illuminate\Support\Facades\Storage;
 
 class BlogAPIController extends Controller
 {
-    // API to get a list of blogs
     public function index()
     {
-
-        // Fetch blogs with necessary fields
-        $blogs = Blog::all();
+        // Fetch blogs with necessary fields, sorted by created_at in descending order
+        $blogs = Blog::orderBy('created_at', 'desc')->get();
 
         // Transform the blogs to the specified format
         $formattedBlogs = $blogs->map(function ($blog) {
