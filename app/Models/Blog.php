@@ -17,5 +17,6 @@ class Blog extends Model
         'creator',
         'tags',
         'content',
+        'created_at',
     ];
 }
