@@ -35,7 +35,7 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-Route::get('/blogs', [BlogAPIController::class, 'index']);
-Route::get('/blogs/{slug}', [BlogAPIController::class, 'show']);
+//Route::get('/blogs', [BlogAPIController::class, 'index']);
+//Route::get('/blogs/{slug}', [BlogAPIController::class, 'show']);
 
 require __DIR__.'/auth.php';

@@ -13,6 +13,7 @@ class BlogAPIController extends Controller
     // API to get a list of blogs
     public function index()
     {
+
         // Fetch blogs with necessary fields
         $blogs = Blog::all();
 
