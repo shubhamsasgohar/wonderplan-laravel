@@ -15,7 +15,8 @@ class BlogController extends Controller
      */
     public function index()
     {
-        $blogs = Blog::all();
+        // Fetch blogs sorted by created_at in descending order
+        $blogs = Blog::orderBy('created_at', 'desc')->get();
         return view('admin.blogs.index', compact('blogs'));
     }
 
@@ -122,27 +123,53 @@ class BlogController extends Controller
             'cover_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'tags' => 'nullable|string',
             'keywords' => 'nullable|string',
-            'content' => 'nullable|string',
+            'content_data' => 'required|string',
         ]);
+        // Check if the title has changed
+        if ($request->title !== $blog->title) {
+            // Generate a new slug from the updated title
+            $newSlug = Str::slug($request->title);
+
+            // Check if the new slug already exists in other blog entries
+            $slugExists = Blog::where('slug', $newSlug)->where('id', '!=', $blog->id)->exists();
+
+            // If the slug already exists, return an error message to the user
+            if ($slugExists) {
+                return redirect()->back()->withErrors(['title' => 'A blog with this title already exists. Please choose a different title.']);
+            }
+
+            // If the slug does not exist, update it
+            $blog->slug = $newSlug;
+        }
 
         // Update the cover image if a new one is uploaded
         if ($request->hasFile('cover_img')) {
             $file = $request->file('cover_img');
-            $filename = time() . '-' . $file->getClientOriginalName();
-            $file->storeAs('uploads', $filename, 'r2');  // Assuming R2 storage
+
+            // Generate a unique filename and convert to WebP
+            $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $webpFilename = Str::slug($originalFilename) . '-' . uniqid() . '.webp';
+
+            // Convert to WebP
+            $webpImage = Image::make($file)->encode('webp', 90);
+
+            // Store the WebP image in Cloudflare R2
+            Storage::disk('r2')->put($webpFilename, (string) $webpImage);
 
             // Update cover_img path in the database
-            $blog->cover_img = $filename;
+            $blog->cover_img = $webpFilename;
         }
 
         // Update other fields
-        $blog->update([
-            'title' => $request->title,
-            'description' => $request->description,
-            'tags' => $request->tags,
-            'keywords' => $request->keywords,
-            'content' => $request->content,
-        ]);
+        $blog->title = $request->title;
+        $blog->description = $request->description;
+        $blog->tags = $request->tags;
+        $blog->keywords = $request->keywords;
+        $blog->content = $request->content_data;  // Explicitly assign content
+        $blog->creator = $request->creator;
+
+        // Save the changes
+        $blog->save();
 
         return redirect()->route('admin.blogs.index')->with('success', 'Blog updated successfully');
     }
