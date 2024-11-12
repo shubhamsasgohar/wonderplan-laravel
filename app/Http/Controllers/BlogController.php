@@ -42,21 +42,19 @@ class BlogController extends Controller
             'description' => 'required|string',
             'cover_img' => 'required|image|mimes:jpg,jpeg,png|max:2048', // Expect an image file
             'content_data' => 'required|string',
+            'slug' => 'nullable|string|unique:blogs,slug', // Slug validation
             'tags' => 'nullable|string',
             'keywords' => 'nullable|string',
             'creator' => 'nullable|string|max:255',
             'creator_image' => 'nullable|string|max:255',
         ]);
 
-            // Generate slug from the title
-            $slug = Str::slug($request->title);
-            // Ensure unique slug by appending a number if it already exists
-            $existingCount = Blog::where('slug', 'LIKE', "{$slug}%")->count();
-            if ($existingCount > 0) {
-                $slug .= '-' . ($existingCount + 1);
+            $slug = $request->slug ?? Str::slug($request->title);
+            if (Blog::where('slug', $slug)->exists()) {
+                return redirect()->back()->withErrors(['error' => 'The slug already exists. Please choose a unique slug.']);
             }
-
             // Convert cover image to WebP format
+            $coverImagePath = null;
             if ($request->hasFile('cover_img')) {
                 $file = $request->file('cover_img');
 
@@ -89,9 +87,8 @@ class BlogController extends Controller
             // Redirect with success message if blog was saved successfully
             return redirect()->route('admin.blogs.index')->with('success', 'Blog created successfully');
         } catch (\Illuminate\Validation\ValidationException $e) {
-
             // Redirect back with error message
-            return redirect()->back()->with('error', 'Failed to create the blog. Please try again.');
+            return redirect()->back()->withErrors(['error' =>  $e->getMessage()]);
         }
         // Redirect back to the blog index or any other desired route with a success message
     }
@@ -117,61 +114,60 @@ class BlogController extends Controller
      */
     public function update(Request $request, Blog $blog)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'cover_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'tags' => 'nullable|string',
-            'keywords' => 'nullable|string',
-            'content_data' => 'required|string',
-        ]);
-        // Check if the title has changed
-        if ($request->title !== $blog->title) {
-            // Generate a new slug from the updated title
-            $newSlug = Str::slug($request->title);
+        try {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'cover_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'slug' => 'nullable|string|unique:blogs,slug,' . $blog->id, // Unique validation, excluding current blog ID
+                'tags' => 'nullable|string',
+                'keywords' => 'nullable|string',
+                'content_data' => 'required|string',
+            ]);
 
-            // Check if the new slug already exists in other blog entries
-            $slugExists = Blog::where('slug', $newSlug)->where('id', '!=', $blog->id)->exists();
 
-            // If the slug already exists, return an error message to the user
-            if ($slugExists) {
-                return redirect()->back()->withErrors(['title' => 'A blog with this title already exists. Please choose a different title.']);
+            // Check if the title has changed
+            $slug = $request->slug ?? $blog->slug;
+            if ($slug !== $blog->slug && Blog::where('slug', $slug)->exists()) {
+                return redirect()->back()->withErrors(['error' => 'The slug already exists. Please choose a unique slug.']);
             }
 
-            // If the slug does not exist, update it
-            $blog->slug = $newSlug;
+            // Update the cover image if a new one is uploaded
+            if ($request->hasFile('cover_img')) {
+                $file = $request->file('cover_img');
+
+                // Generate a unique filename and convert to WebP
+                $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $webpFilename = Str::slug($originalFilename) . '-' . uniqid() . '.webp';
+
+                // Convert to WebP
+                $webpImage = Image::make($file)->encode('webp', 90);
+
+                // Store the WebP image in Cloudflare R2
+                Storage::disk('r2')->put($webpFilename, (string) $webpImage);
+
+                // Update cover_img path in the database
+                $blog->cover_img = $webpFilename;
+            }
+
+            // Update other fields
+            $blog->title = $request->title;
+            $blog->slug = $slug;
+            $blog->description = $request->description;
+            $blog->tags = $request->tags;
+            $blog->keywords = $request->keywords;
+            $blog->content = $request->content_data;  // Explicitly assign content
+            $blog->creator = $request->creator;
+
+            // Save the changes
+            $blog->save();
+
+            return redirect()->route('admin.blogs.index')->with('success', 'Blog updated successfully');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Redirect back with error message
+            return redirect()->back()->withErrors(['error' =>  $e->getMessage()]);
         }
 
-        // Update the cover image if a new one is uploaded
-        if ($request->hasFile('cover_img')) {
-            $file = $request->file('cover_img');
-
-            // Generate a unique filename and convert to WebP
-            $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $webpFilename = Str::slug($originalFilename) . '-' . uniqid() . '.webp';
-
-            // Convert to WebP
-            $webpImage = Image::make($file)->encode('webp', 90);
-
-            // Store the WebP image in Cloudflare R2
-            Storage::disk('r2')->put($webpFilename, (string) $webpImage);
-
-            // Update cover_img path in the database
-            $blog->cover_img = $webpFilename;
-        }
-
-        // Update other fields
-        $blog->title = $request->title;
-        $blog->description = $request->description;
-        $blog->tags = $request->tags;
-        $blog->keywords = $request->keywords;
-        $blog->content = $request->content_data;  // Explicitly assign content
-        $blog->creator = $request->creator;
-
-        // Save the changes
-        $blog->save();
-
-        return redirect()->route('admin.blogs.index')->with('success', 'Blog updated successfully');
     }
 
     /**
@@ -185,6 +181,10 @@ class BlogController extends Controller
 
     public function uploadImage(Request $request)
     {
+        // Manually set the CSRF token if it's passed as a query parameter
+        if ($request->has('token')) {
+            $request->headers->set('X-CSRF-TOKEN', $request->get('token'));
+        }
         // Validate the request to ensure the file is an image
         $request->validate([
             'upload' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
@@ -199,7 +199,9 @@ class BlogController extends Controller
 
         // Convert the image to WebP format using Intervention Image
         $webpImage = Image::make($file)->encode('webp', 90); // Adjust quality as needed
-
+        if ($webpImage->filesize() === 0) {
+            return response()->json(['error' => 'Failed to encode the image'], 500);
+        }
         // Store the WebP image in Cloudflare R2
         Storage::disk('r2')->put($webpFilename, (string) $webpImage);
 
@@ -208,6 +210,7 @@ class BlogController extends Controller
 
         // Return the URL in a CKEditor-compatible JSON format
         return response()->json([
+            'uploaded' => true,
             'url' => $url,
         ]);
     }

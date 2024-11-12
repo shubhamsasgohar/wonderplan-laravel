@@ -12,7 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->validateCsrfTokens(except: [
+            'admin/blogs/upload-image' // <-- exclude this route
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

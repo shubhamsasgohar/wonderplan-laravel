@@ -35,12 +35,24 @@
                 <div class="card-body">
                     <form action="{{ route('admin.blogs.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
+
+
+                        @if ($errors->has('error'))
+                            <div class="alert alert-danger">
+                                {{ $errors->first('error') }}
+                            </div>
+                        @endif
+
                         <!-- Blog Title -->
                         <div class="form-group mb-3">
                             <label for="title" class="form-label">Title</label>
                             <input type="text" name="title" class="form-control" placeholder="Enter blog title" required>
                         </div>
-
+                        <div class="form-group mb-3">
+                            <label for="slug" class="form-label">Slug (URL)</label>
+                            <input type="text" name="slug" class="form-control" placeholder="Enter custom slug (optional)">
+                            <small>Leave empty to generate from the title.</small>
+                        </div>
                         <!-- Blog Description -->
                         <div class="form-group mb-3">
                             <label for="description" class="form-label">Description</label>
@@ -95,7 +107,7 @@
             .create(document.querySelector('#content-editor'), {
                 height: '500px',
                 ckfinder: {
-                    uploadUrl: '{{ route("admin.blogs.uploadImage") }}'
+                    uploadUrl: '{{ route("admin.blogs.uploadImage") }}?token={{ csrf_token() }}'
                 }
             })
             .then(editor => {
