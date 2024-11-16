@@ -6,6 +6,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "google/protobuf": "^4.28",
+        "grpc/grpc": "^1.57",
         "intervention/image": "2.7",
         "kreait/laravel-firebase": "^5.9",
         "laravel/framework": "^11.9",
@@ -26,6 +28,8 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/",
+            "App\\Protos\\Trip\\V4\\": "app/Protos/Trip/V4",
+            "GPBMetadata\\": "app/Protos/GPBMetadata/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }

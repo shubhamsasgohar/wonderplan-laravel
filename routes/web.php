@@ -5,7 +5,8 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BlogController; // Import the BlogController
 use App\Http\Controllers\Api\BlogAPIController; // Import the BlogController
-
+use App\Http\Controllers\ProtoController;
+use App\Http\Controllers\UserTripController;
 
 // Redirect users to the login page if they access a route without authentication
 Route::get('/', function () {
@@ -31,8 +32,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/blogs/upload-image', [BlogController::class, 'uploadImage'])->name('blogs.uploadImage');
         Route::get('/firebase-users', [UserController::class, 'listUsers'])->name('firebase-users');
 
+        Route::get('/users/{uid}/trips', [UserTripController::class, 'show'])->name('user.trips');
+        Route::get('/decode-bookmark-trip', [ProtoController::class, 'decodeBookmark']);
 
     });
+//    Route::get('/decode-bookmark-trip', [ProtoController::class, 'decodeProtoFile']);
+
 });
 
 //Route::get('/blogs', [BlogAPIController::class, 'index']);

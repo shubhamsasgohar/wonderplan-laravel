@@ -49,6 +49,10 @@
                             <input type="text" name="title" class="form-control" placeholder="Enter blog title" required>
                         </div>
                         <div class="form-group mb-3">
+                            <label for="meta_title" class="form-label">Meta Title</label>
+                            <input type="text" name="meta_title" class="form-control" placeholder="Enter meta title">
+                        </div>
+                        <div class="form-group mb-3">
                             <label for="slug" class="form-label">Slug (URL)</label>
                             <input type="text" name="slug" class="form-control" placeholder="Enter custom slug (optional)">
                             <small>Leave empty to generate from the title.</small>

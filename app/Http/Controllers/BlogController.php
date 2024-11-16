@@ -39,6 +39,7 @@ class BlogController extends Controller
         // Validate the input fields
         $request->validate([
             'title' => 'required|string|max:255',
+            'meta_title' => 'nullable|string|max:255',
             'description' => 'required|string',
             'cover_img' => 'required|image|mimes:jpg,jpeg,png|max:2048', // Expect an image file
             'content_data' => 'required|string',
@@ -74,6 +75,7 @@ class BlogController extends Controller
             // Attempt to save the blog data to the database
             $blog = Blog::create([
                 'title' => $request->title,
+                'meta_title' => $request->meta_title,
                 'slug' => $slug,
                 'description' => $request->description,
                 'cover_img' => $coverImagePath, // Path in R2
@@ -117,6 +119,7 @@ class BlogController extends Controller
         try {
             $request->validate([
                 'title' => 'required|string|max:255',
+                'meta_title' => 'nullable|string|max:255',
                 'description' => 'required|string',
                 'cover_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 'slug' => 'nullable|string|unique:blogs,slug,' . $blog->id, // Unique validation, excluding current blog ID
@@ -152,6 +155,7 @@ class BlogController extends Controller
 
             // Update other fields
             $blog->title = $request->title;
+            $blog->meta_title = $request->meta_title;
             $blog->slug = $slug;
             $blog->description = $request->description;
             $blog->tags = $request->tags;

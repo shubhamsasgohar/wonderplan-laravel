@@ -26,6 +26,10 @@
                 <input type="text" name="title" class="form-control" value="{{ $blog->title }}" required>
             </div>
             <div class="form-group mb-3">
+                <label for="meta_title" class="form-label">Meta Title</label>
+                <input type="text" name="meta_title" class="form-control" value="{{ $blog->meta_title }}" placeholder="Enter meta title">
+            </div>
+            <div class="form-group mb-3">
                 <label for="slug" class="form-label">Slug (URL)</label>
                 <input type="text" name="slug" class="form-control" value="{{ $blog->slug }}" placeholder="Enter custom slug (optional)">
                 <small>Leave unchanged to keep current URL.</small>

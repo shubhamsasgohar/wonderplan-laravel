@@ -43,6 +43,7 @@
                                     <th>Email</th>
                                     <th>Display Name</th>
                                     <th>Created At</th>
+                                    <th>Itineraries</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -53,6 +54,12 @@
                                         <td>{{ $user['email'] }}</td>
                                         <td>{{ $user['displayName'] }}</td>
                                         <td>{{ $user['createdAt'] }}</td>
+                                        <td>
+                                            <a href="{{ route('admin.user.trips', ['uid' => $user['uid']]) }}" class="btn btn-block btn-outline-secondary btn-sm">
+                                                Trips
+                                            </a>
+                                        </td>
+
                                     </tr>
                                 @endforeach
                                 </tbody>

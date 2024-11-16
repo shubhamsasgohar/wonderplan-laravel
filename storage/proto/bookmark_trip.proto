@@ -1,0 +1,541 @@
+
+syntax = "proto3";
+
+package trip.v4;
+
+//import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+
+option go_package = "github.com/sonderbase/sonderback/internal/gen/trip/v4;trip";
+option php_namespace = "App\\Protos\\Trip\\V4";
+
+service TripService {
+    rpc GetTripStatus(GetTripStatusRequest) returns (TripStatus) {
+        option (google.api.http) = {get: "/v4/trips/{id}/status"};
+    }
+
+    rpc PlanAsync(PlanAsyncRequest) returns (PlanAsyncResponse) {
+        option (google.api.http) = {
+            post: "/v4/trips:planAsync"
+            body: "*"
+        };
+    }
+
+    rpc GetPlanAsyncRequest(GetPlanAsyncRequestRequest) returns (PlanAsyncRequest) {
+        option (google.api.http) = {get: "/v4/trips/{id}/planAsyncRequest"};
+    }
+
+    rpc GetTrip(GetTripRequest) returns (Trip) {
+        option (google.api.http) = {get: "/v4/trips/{id}"};
+    }
+
+    rpc GetTripDayBlocking(GetTripDayRequest) returns (TripDay) {
+        option (google.api.http) = {get: "/v4/trips/{id}/days/{day}:blocking"};
+    }
+
+    rpc GetTripBudgetBlocking(GetTripBudgetRequest) returns (Budget) {
+        option (google.api.http) = {get: "/v4/trips/{id}/budget:blocking"};
+    }
+
+    rpc GetTripAffiliateBlocking(GetTripAffiliateRequest) returns (Affiliate) {
+        option (google.api.http) = {get: "/v4/trips/{id}/affiliate:blocking"};
+    }
+
+    rpc GetHotelRecommendationBlocking(GetHotelRecommendationRequest) returns (HotelRecommendation) {
+        option (google.api.http) = {get: "/v4/trips/{id}/hotelRecommendation:blocking"};
+    }
+
+    rpc SearchRecommendActivity(SearchRecommendActivityRequest) returns (RecommendActivityResponse) {
+        option (google.api.http) = {
+            post: "/v4/trips:searchRecommendActivities"
+            body: "*"
+        };
+    }
+
+    rpc RecommendActivity(RecommendActivityRequest) returns (RecommendActivityResponse) {
+        option (google.api.http) = {
+            post: "/v4/trips:recommendActivities"
+            body: "*"
+        };
+    }
+
+    rpc AddTripDayActivity(AddTripDayActivityRequest) returns (Activity) {
+        option (google.api.http) = {
+            post: "/v4/trips/{id}/days/{days}/activities"
+            body: "*"
+        };
+    }
+
+    rpc DeleteTripDayActivity(DeleteTripDayActivityRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {delete: "/v4/trips/{id}/days/{days}/activities/{aid}"};
+    }
+
+    rpc ReorderTrip(ReoderTripRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/v4/trips/{id}:reorder"
+            body: "*"
+        };
+    }
+
+    rpc AddBookmark(AddBookmarkRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/v4/bookmarks:add"
+            body: "*"
+        };
+    }
+
+    rpc RemoveBookmark(RemoveBookmarkRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/v4/bookmarks:remove"
+            body: "*"
+        };
+    }
+
+    rpc CloneTrip(CloneTripRequest) returns (CloneTripResponse) {
+        option (google.api.http) = {
+            post: "/v4/trips:clone"
+            body: "*"
+        };
+    }
+
+    rpc UpdateVisibility(UpdateVisibilityRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/v4/trips/{id}:visibility"
+            body: "*"
+        };
+    }
+
+    rpc UpdateTrip(UpdateTripRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            patch: "/v4/trips/{id}"
+            body: "*"
+        };
+    }
+
+    rpc GetBookmark(GetBookmarkRequest) returns (Bookmark) {
+        option (google.api.http) = {get: "/v4/bookmarks"};
+    }
+
+    // PlanSync is only used internally
+    rpc PlanSync(PlanSyncRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/v4/_trips:planSync"
+            body: "*"
+        };
+    }
+
+    // SaveTripDay is only used internally
+    rpc SaveTripDay(SaveTripDayRequest) returns (TripDay) {
+        option (google.api.http) = {
+            post: "/v4/_trips/{id}/days/{day}"
+            body: "*"
+        };
+    }
+
+    // SaveBudget is only used internally
+    rpc SaveBudget(SaveBudgetRequest) returns (Budget) {
+        option (google.api.http) = {
+            post: "/v4/_trips/{id}/budget"
+            body: "*"
+        };
+    }
+
+    // SaveTrip is only used internally
+    rpc SaveTrip(SaveTripRequest) returns (Trip) {
+        option (google.api.http) = {
+            post: "/v4/_trips/{id}"
+            body: "*"
+        };
+    }
+
+    rpc TriggerGenerateSitemap(TriggerGenerateSitemapRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/v4/_trips:triggerGenerateSitemap"
+            body: "*"
+        };
+    }
+
+}
+
+message GetTripStatusRequest {
+    string id = 1;
+}
+
+message TripStatus {
+    enum Status {
+        STATUS_UNSPECIFIED = 0;
+        STATUS_NOT_FOUND = 1;
+        STATUS_PENDING = 2;
+        STATUS_COMPLETED = 3;
+    }
+
+    Status status = 1;
+    bool is_private = 2;
+    bool is_owner = 3;
+}
+
+message GetTripDayRequest {
+    string id = 1;
+    uint32 day = 2;
+}
+
+message GetTripBudgetRequest {
+    string id = 1;
+}
+
+message GetPlanAsyncRequestRequest {
+    string id = 1;
+}
+
+enum ActivityType {
+    ACTIVITY_TYPE_UNSPECIFIED = 0;
+    ACTIVITY_TYPE_BEACH = 1;
+    ACTIVITY_TYPE_SIGHT_SEEING = 2;
+    ACTIVITY_TYPE_OUTDOOR_ADVENTURE = 3;
+    ACTIVITY_TYPE_FESTIVAL_EVENT = 4;
+    ACTIVITY_TYPE_FOOD_EXPLORATION = 5;
+    ACTIVITY_TYPE_NIGHTLIFE = 6;
+    ACTIVITY_TYPE_SHOPPING = 7;
+    ACTIVITY_TYPE_SPA_WELLNESS = 8;
+}
+
+message PlanAsyncRequest {
+    enum BudgetType {
+        BUDGET_TYPE_UNSPECIFIED = 0;
+        BUDGET_TYPE_LOW = 1;
+        BUDGET_TYPE_MEDIUM = 2;
+        BUDGET_TYPE_HIGH = 3;
+    }
+
+    enum GroupType {
+        GROUP_TYPE_UNSPECIFIED = 0;
+        GROUP_TYPE_SOLO = 1;
+        GROUP_TYPE_COUPLE = 2;
+        GROUP_TYPE_FAMILY = 3;
+        GROUP_TYPE_FRIEND = 4;
+    }
+
+    message DietaryRestriction {
+        bool is_halal = 1;
+        bool is_vegan = 2;
+    }
+
+    // this is all for testing purpose, not supposed to be exposed for public
+    // this also acts as a feature flag ish
+    message Feature {
+        optional ModelType model_type = 1;
+    }
+
+    optional Feature feature = 1;
+    optional string origin_destination_id = 2;
+    string destination_destination_id = 3;
+    google.protobuf.Timestamp travel_at = 4;
+//    uint32 days = 5 [(buf.validate.field).uint32 = {lte: 10}];
+    uint32 days = 5;
+    BudgetType budget_type = 6;
+    GroupType group_type = 7;
+    repeated ActivityType activity_types = 8;
+    DietaryRestriction dietary_restriction = 9;
+    // default to public, to be backward compatible
+    optional bool is_private = 10;
+    // this is for internal use only
+    optional string owner_id = 11;
+    // internal use only
+    optional string title = 12;
+}
+
+message PlanSyncRequest {
+    message LocationMeta {
+        optional string country = 1;
+        optional string state = 2;
+        optional string city = 3;
+    }
+    string id = 1;
+    PlanAsyncRequest req = 2;
+    LocationMeta destination_meta = 3;
+    optional LocationMeta origin_meta = 4;
+}
+
+message PlanAsyncResponse {
+    string id = 1;
+}
+
+message GetTripRequest {
+    string id = 1;
+}
+
+enum ModelType {
+    MODEL_TYPE_UNSPECIFIED = 0;
+    MODEL_TYPE_BARD = 1;
+    MODEL_TYPE_CHATGPT = 2;
+    MODEL_TYPE_GEMINI = 3;
+}
+
+message AffiliateLink {
+    enum Provider {
+        PROVIDER_UNSPECIFIED = 0;
+        PROVIDER_KAYAK = 1;
+        PROVIDER_KIWI = 2;
+        PROVIDER_TRIP_DOT_COM = 3;
+        PROVIDER_BOOKING = 4;
+        PROVIDER_KLOOK = 5;
+        PROVIDER_VIATOR = 6;
+    }
+
+    Provider provider = 1;
+    string link = 2;
+}
+
+message Activity {
+    message LocationMeta {
+        optional uint32 location_id = 1;
+        optional uint32 geo_id = 2;
+        optional string place_id = 3;
+    }
+
+    enum LocationType {
+        LOCATION_TYPE_UNSPECIFIED = 0;
+        LOCATION_TYPE_CAFE = 1;
+        LOCATION_TYPE_RESTAURANT = 2;
+        LOCATION_TYPE_ATTRACTION = 3;
+        LOCATION_TYPE_HOTEL = 4;
+        LOCATION_TYPE_MUSEUM = 5;
+        LOCATION_TYPE_THINGS_TO_DO = 6;
+    }
+
+    string local_time = 1;
+    string location = 2;
+    string city = 3;
+    string state = 4;
+    optional double lat = 5;
+    optional double lng = 6;
+    optional LocationType location_type = 7;
+    optional string location_address = 8;
+    optional string operating_hour = 9;
+    optional string image_url = 10;
+
+    double budget_usd = 11;
+    uint32 duration_min = 12;
+    repeated ActivityType activity_types = 13;
+    string description = 14;
+    repeated AffiliateLink affiliate_links = 15;
+    LocationMeta location_meta = 16;
+    string aid = 17;
+}
+
+message TripDay {
+    uint32 day = 1;
+    repeated Activity activities = 2;
+    string summary = 3;
+}
+
+message SaveTripDayRequest {
+    string id = 1;
+    uint32 day = 2;
+    TripDay trip_day = 3;
+    PlanSyncRequest plan_sync_request = 4;
+}
+
+message Budget {
+    message BudgetRecord {
+        string type = 1;
+        string price_usd = 2;
+        string note = 3;
+    }
+    repeated BudgetRecord accommodations = 1;
+    repeated BudgetRecord transportations = 2;
+    repeated BudgetRecord foods = 3;
+    repeated BudgetRecord activities = 4;
+    optional string summary = 5;
+}
+
+message SaveBudgetRequest {
+    string id = 1;
+    Budget budget = 2;
+}
+
+message Affiliate {
+    message Flight {
+        string kayak = 1;
+        string kiwi = 2;
+        string tripdotcom = 3;
+    }
+    message Accommodation {
+        string kayak = 1;
+        string booking = 2;
+        string tripdotcom = 3;
+    }
+    message CarRental {
+        string kayak = 1;
+    }
+
+    repeated AffiliateLink flights = 1;
+    repeated AffiliateLink accommodations = 2;
+    repeated AffiliateLink car_rentals = 3;
+}
+
+message Trip {
+    message Meta {
+        optional ModelType model_type = 1;
+    }
+    string id = 1;
+    PlanAsyncRequest plan_request = 2;
+    repeated TripDay days = 3;
+    Budget budget = 4;
+    optional Affiliate affiliate = 5;
+    optional Meta meta = 6;
+    optional HotelRecommendation hotel_recommendation = 7;
+}
+
+message SaveTripRequest {
+    string id = 1;
+    Trip trip = 2;
+    PlanSyncRequest plan_sync_request = 3;
+}
+
+message GetTripAffiliateRequest {
+    string id = 1;
+}
+
+message Bookmark {
+    message Trip {
+        message DestinationMeta {
+            optional string country = 1;
+            optional string state = 2;
+            optional string city = 3;
+        }
+        string trip_id = 1;
+        PlanAsyncRequest plan_request = 2;
+        string img_url = 3;
+        DestinationMeta destination_meta = 4;
+        optional string owner_id = 5;
+    }
+
+    string user_id = 1;
+    repeated Trip trips = 2;
+}
+
+message AddBookmarkRequest {
+    string trip_id = 1;
+}
+
+message RemoveBookmarkRequest {
+    string trip_id = 1;
+}
+
+message HotelRecommendation {
+    message Hotel {
+        string name = 1;
+        string description = 2;
+        double rating_count = 3;
+        double stars = 4;
+        string stars_text = 5;
+        repeated string images = 6;
+        string price = 7;
+        string url = 8;
+        repeated AffiliateLink affliate_links = 9;
+    }
+
+    string title = 1;
+    string full_title = 2;
+    string from_date = 3;
+    string to_date = 4;
+    string tool_name = 5;
+    string who = 6;
+    repeated Hotel hotels = 7;
+}
+
+message GetHotelRecommendationRequest {
+    string id = 1;
+}
+
+message SearchRecommendActivityRequest {
+    string query = 1;
+}
+
+message RecommendActivityRequest {
+    message LocationMeta {
+        optional int32 location_id = 1;
+        optional int32 geo_id = 2;
+        optional double latitude = 3;
+        optional double longitude = 4;
+    }
+    repeated LocationMeta location_metas = 1;
+}
+
+message RecommendActivityResponse {
+    message Location {
+        message Photo {
+            uint32 width = 1;
+            uint32 height = 2;
+            string url = 3;
+        }
+        string name = 1;
+        string address = 2;
+        double latitude = 3;
+        double longitude = 4;
+        repeated Photo photos = 5;
+        optional double rating = 6;
+        optional uint32 rating_count = 7;
+        optional string place_type = 8;
+        optional uint32 location_id = 9;
+        optional string place_id = 10;
+    }
+
+    repeated Location locations = 1;
+}
+
+message AddTripDayActivityRequest {
+    string id = 1;
+    uint32 days = 2;
+    string location_name = 3;
+    string location_address = 4;
+    optional uint32 location_id = 5;
+    optional string place_id = 6;
+}
+
+message DeleteTripDayActivityRequest {
+    string id = 1;
+    uint32 days = 2;
+    string aid = 3;
+}
+
+message ReoderTripRequest {
+    message ReorderDay {
+        repeated string activity_ids = 1;
+    }
+    string id = 1;
+    repeated ReorderDay days = 2;
+}
+
+message CloneTripRequest {
+    string id = 1;
+}
+
+message CloneTripResponse {
+    string id = 1;
+}
+
+message UpdateVisibilityRequest {
+    string id = 1;
+    bool is_private = 2;
+}
+
+message GetBookmarkRequest {
+    optional bool by_me = 1;
+}
+
+message UpdateTripRequest {
+    string id = 1;
+    optional string title = 2;
+    optional google.protobuf.Timestamp travel_at = 3;
+    optional uint32 days = 4;
+}
+
+message TriggerGenerateSitemapRequest {
+    int64 from = 1;
+    int64 to = 2;
+}

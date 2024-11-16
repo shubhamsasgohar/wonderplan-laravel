@@ -5,6 +5,7 @@
 /public/storage
 /storage/*.key
 /storage/wonderplan-firebase.json
+/storage/wonderplan-google-cloud-storage-4daca6315c48.json
 /storage/posts
 /storage/pail
 /vendor
