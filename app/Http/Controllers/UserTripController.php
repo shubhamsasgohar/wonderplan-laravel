@@ -4,9 +4,23 @@ namespace App\Http\Controllers;
 use App\Protos\Trip\V4\Bookmark;
 use Google\Cloud\Storage\StorageClient;
 use Illuminate\Http\Request;
+use App\Models\Trip;
 
 class UserTripController extends Controller
 {
+    /**
+     * Display a listing of the trips.
+     */
+    public function index(Request $request)
+    {
+        // Fetch all trips from the database
+        $trips = Trip::all();
+//        dd($trips[0]); // Debug to see what is being passed to the view
+        // Pass the raw data to the view without transformation
+        return view('admin.trips.list', compact('trips'));
+
+    }
+
     public function show($uid)
     {
         $bucketName = 'global-us-v2-wonderplan-ai';
@@ -22,13 +36,11 @@ class UserTripController extends Controller
         // Check if the file exists in the GCS bucket
         $object = $bucket->object($fileName);
         if (!$object->exists()) {
-//            return redirect()->back()->withErrors('No trips found for this user.');
             return view('admin.trips.index', [
                 'trips' => [],
                 'uid' => '',
             ]);
         }
-
         // Read the binary contents of the .pb file from GCS
         $binaryData = $object->downloadAsString();
 
@@ -41,6 +53,7 @@ class UserTripController extends Controller
 
             // Convert the decoded Protobuf message to an array for JSON response
             $decodedData = json_decode($bookmark->serializeToJsonString(), true);
+
             return view('admin.trips.index', [
                 'trips' => $decodedData['trips'],
                 'uid' => $uid,

@@ -35,6 +35,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/users/{uid}/trips', [UserTripController::class, 'show'])->name('user.trips');
         Route::get('/decode-bookmark-trip', [ProtoController::class, 'decodeBookmark']);
 
+        Route::get('/trips', [UserTripController::class, 'index'])->name('trips.list');
+
     });
 //    Route::get('/decode-bookmark-trip', [ProtoController::class, 'decodeProtoFile']);
 

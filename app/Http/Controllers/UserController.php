@@ -8,6 +8,7 @@ use Kreait\Firebase\Auth as FirebaseAuth;
 use Kreait\Firebase\Exception\AuthException;
 use Kreait\Firebase\Exception\FirebaseException;
 use Kreait\Firebase\Factory;
+
 class UserController extends Controller
 {
     protected $auth;
@@ -35,9 +36,6 @@ class UserController extends Controller
 //            // Query Firebase for users
             $userQuery = FirebaseAuth\UserQuery::all()->withOffset(0)->withLimit(1000);
             $users = $this->auth->queryUsers($userQuery);
-//            $users = $this->auth->listUsers();
-//            dump($users['00iw6cRcTfYwM9C2krDSYZnf9PK2']);
-//            die;
             // Convert the generator to an array to pass to the view
             $userList = [];
             foreach ($users as $user) {

@@ -1,4 +1,4 @@
-<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark"> <!--begin::Sidebar Brand-->
+<a  side class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark"> <!--begin::Sidebar Brand-->
     <div class="sidebar-brand">
       <a href="javascript:void(0)" class="brand-link">
             <span class="brand-text fw-light">WonderPlan Admin</span>
@@ -11,6 +11,11 @@
                 <li class="nav-item"><a href="{{ route('admin.firebase-users') }}" class="nav-link">
                         <i class="nav-icon bi bi-box-seam-fill"></i>
                         <p>Users</p>
+                    </a>
+                </li>
+                <li class="nav-item"><a href="{{ route('admin.trips.list') }}" class="nav-link">
+                        <i class="nav-icon bi bi-box-seam-fill"></i>
+                        <p>Trips</p>
                     </a>
                 </li>
                 <li class="nav-item"> <a href="#" class="nav-link"> <i class="nav-icon bi bi-box-seam-fill"></i>
