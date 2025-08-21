@@ -105,20 +105,83 @@
 
 
     <!-- Include CKEditor -->
-    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/super-build/ckeditor.js"></script>
     <script>
-        ClassicEditor
-            .create(document.querySelector('#content-editor'), {
-                height: '500px',
-                ckfinder: {
-                    uploadUrl: '{{ route("admin.blogs.uploadImage") }}?token={{ csrf_token() }}'
-                }
+        let editorInstance;
+
+        CKEDITOR.ClassicEditor.create(document.querySelector('#content-editor'), {
+            toolbar: {
+                items: [
+                    'heading','|',
+                    'bold','italic','underline','strikethrough','|',
+                    'link','bulletedList','numberedList','outdent','indent','|',
+                    'blockQuote','insertTable','imageUpload','mediaEmbed','|',
+                    'htmlEmbed','code','codeBlock','|','sourceEditing','undo','redo'
+                ]
+            },
+
+            // Remove cloud/collaboration plugins to avoid channelId errors
+            removePlugins: [
+                'RealTimeCollaborativeComments','RealTimeCollaborativeTrackChanges','RealTimeCollaborativeRevisionHistory',
+                'PresenceList','Comments','TrackChanges','TrackChangesData','RevisionHistory',
+                'Pagination','WProofreader','MathType','SlashCommand','Template','DocumentOutline',
+                'FormatPainter','TableOfContents','PasteFromOfficeEnhanced','CaseChange',
+                'CKBox','EasyImage'
+            ],
+
+            // Allow raw HTML to round-trip (tags/attrs/classes/styles)
+            htmlSupport: {
+                allow: [{ name: /.*/, attributes: true, classes: true, styles: true }],
+                // keep scripts blocked by default; enable iframes only if you trust authors
+                disallow: [{ name: 'script' }]
+            },
+
+            // If you want to explicitly allow iframes, replace disallow above with:
+            // htmlSupport: { allow: [
+            //   { name: /.*/, attributes: true, classes: true, styles: true },
+            //   { name: 'iframe', attributes: ['src','width','height','allow','allowfullscreen','frameborder','loading','referrerpolicy'], classes: true, styles: true }
+            // ]},
+
+            mediaEmbed: { previewsInData: true },
+            htmlEmbed: { showPreviews: true },
+
+            // Your upload endpoint
+            ckfinder: {
+                uploadUrl: '{{ route("admin.blogs.uploadImage") }}?token={{ csrf_token() }}'
+            }
+        })
+            .then(ed => {
+                editorInstance = ed;
+                ed.ui.view.editable.element.style.minHeight = '300px';
             })
-            .then(editor => {
-                editor.ui.view.editable.element.style.height = '300px'; // Customize the height
-            })
-            .catch(error => {
-                console.error(error);
-            });
+            .catch(console.error);
+
+        function syncEditorContent() {
+            document.querySelector('#content-editor').value = editorInstance.getData();
+            if (editorInstance.getData().trim() === '') {
+                alert('Content is required.');
+                return false;
+            }
+            return true;
+        }
     </script>
+
+
+    {{--    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>--}}
+{{--    <script>--}}
+{{--        ClassicEditor--}}
+{{--            .create(document.querySelector('#content-editor'), {--}}
+{{--                height: '500px',--}}
+{{--                ckfinder: {--}}
+{{--                    uploadUrl: '{{ route("admin.blogs.uploadImage") }}?token={{ csrf_token() }}'--}}
+{{--                }--}}
+{{--            })--}}
+{{--            .then(editor => {--}}
+{{--                editor.ui.view.editable.element.style.height = '300px'; // Customize the height--}}
+{{--            })--}}
+{{--            .catch(error => {--}}
+{{--                console.error(error);--}}
+{{--            });--}}
+{{--    </script>--}}
 @endsection

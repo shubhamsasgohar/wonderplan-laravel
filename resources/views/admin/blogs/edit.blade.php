@@ -70,35 +70,111 @@
         </form>
     </div>
 
-    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+{{--    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>--}}
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/super-build/ckeditor.js"></script>
+
     <script>
         let editorInstance;
 
-        ClassicEditor
-            .create(document.querySelector('#content-editor'), {
-                ckfinder: {
-                    uploadUrl: '{{ route("admin.blogs.uploadImage") }}'
-                }
-            })
-            .then(editor => {
-                editorInstance = editor;
-                editor.ui.view.editable.element.style.height = '300px'; // Customize the height
-            })
-            .catch(error => {
-                console.error(error);
-            });
+        CKEDITOR.ClassicEditor.create(document.querySelector('#content-editor'), {
+            toolbar: {
+                items: [
+                    'heading','|',
+                    'bold','italic','underline','strikethrough','|',
+                    'link','bulletedList','numberedList','outdent','indent','|',
+                    'blockQuote','insertTable','imageUpload','mediaEmbed','|',
+                    'htmlEmbed','code','codeBlock','|','sourceEditing','undo','redo'
+                ]
+            },
 
+            // 🔧 Remove cloud/collaboration-only plugins that trigger the error
+            removePlugins: [
+                'RealTimeCollaborativeComments',
+                'RealTimeCollaborativeTrackChanges',
+                'RealTimeCollaborativeRevisionHistory',
+                'PresenceList',
+                'Comments',
+                'TrackChanges',
+                'TrackChangesData',
+                'RevisionHistory',
+                'Pagination',
+                'WProofreader',
+                'MathType',
+                'SlashCommand',
+                'Template',
+                'DocumentOutline',
+                'FormatPainter',
+                'TableOfContents',
+                'PasteFromOfficeEnhanced',
+                'CaseChange',
+                // If you don't use CKBox/EasyImage cloud storage, remove them too:
+                'CKBox', 'EasyImage'
+            ],
+
+            // ✅ Allow raw HTML (tags/attrs/styles/classes)
+            htmlSupport: {
+                allow: [
+                    { name: /.*/, attributes: true, classes: true, styles: true }
+                ],
+                // Optional: keep scripts blocked; allow iframes only if you trust authors
+                disallow: [{ name: 'script' }]
+            },
+
+            // If you want to explicitly allow iframes, replace the disallow with:
+            // htmlSupport: { allow: [
+            //   { name: /.*/, attributes: true, classes: true, styles: true },
+            //   { name: 'iframe', attributes: ['src','width','height','allow','allowfullscreen','frameborder','loading','referrerpolicy'], classes: true, styles: true }
+            // ]},
+
+            mediaEmbed: { previewsInData: true },
+            htmlEmbed: { showPreviews: true },
+
+            ckfinder: { uploadUrl: '{{ route("admin.blogs.uploadImage") }}' }
+        })
+            .then(ed => {
+                editorInstance = ed;
+                ed.ui.view.editable.element.style.minHeight = '300px';
+            })
+            .catch(console.error);
+
+        // keep your sync function
         function syncEditorContent() {
-            // Sync CKEditor content with the textarea
             document.querySelector('#content-editor').value = editorInstance.getData();
-
-            // Check if CKEditor content is empty
-            if (editorInstance.getData().trim() === '') {
-                alert('Content is required.');
-                return false; // Prevent form submission
-            }
-
-            return true; // Allow form submission
+            if (editorInstance.getData().trim() === '') { alert('Content is required.'); return false; }
+            return true;
         }
     </script>
+
+
+    {{--    <script>--}}
+{{--        let editorInstance;--}}
+
+{{--        ClassicEditor--}}
+{{--            .create(document.querySelector('#content-editor'), {--}}
+{{--                ckfinder: {--}}
+{{--                    uploadUrl: '{{ route("admin.blogs.uploadImage") }}'--}}
+{{--                }--}}
+{{--            })--}}
+{{--            .then(editor => {--}}
+{{--                editorInstance = editor;--}}
+{{--                editor.ui.view.editable.element.style.height = '300px'; // Customize the height--}}
+{{--            })--}}
+{{--            .catch(error => {--}}
+{{--                console.error(error);--}}
+{{--            });--}}
+
+{{--        function syncEditorContent() {--}}
+{{--            // Sync CKEditor content with the textarea--}}
+{{--            document.querySelector('#content-editor').value = editorInstance.getData();--}}
+
+{{--            // Check if CKEditor content is empty--}}
+{{--            if (editorInstance.getData().trim() === '') {--}}
+{{--                alert('Content is required.');--}}
+{{--                return false; // Prevent form submission--}}
+{{--            }--}}
+
+{{--            return true; // Allow form submission--}}
+{{--        }--}}
+{{--    </script>--}}
 @endsection
