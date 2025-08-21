@@ -63,4 +63,44 @@ class UserTripController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
+
+    public function tripDetail()
+    {
+        $bucketName = 'global-us-v2-wonderplan-ai';
+        $fileName = "trips/v4-1728996604924-70038/trip.pb";
+
+        // Fetch the trip data from Google Cloud Storage
+        $storage = new StorageClient([
+            'keyFilePath' => storage_path('wonderplan-google-cloud-storage-4daca6315c48.json') // Path to your GCS service account JSON file
+        ]);
+
+        // Get the GCS bucket
+        $bucket = $storage->bucket($bucketName);
+        // Check if the file exists in the GCS bucket
+        $object = $bucket->object($fileName);
+        if (!$object->exists()) {
+            die('file not exist');
+        }
+        // Read the binary contents of the .pb file from GCS
+        $binaryData = $object->downloadAsString();
+
+        // Create a new instance of the Bookmark Protobuf message
+        $bookmark = new \App\Protos\Trip\V4\Trip();
+
+        try {
+            // Decode the binary data into the Bookmark object
+            $bookmark->mergeFromString($binaryData);
+
+            // Convert the decoded Protobuf message to an array for JSON response
+            $decodedData = json_decode($bookmark->serializeToJsonString(), true);
+
+            dd($decodedData);
+
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+
 }

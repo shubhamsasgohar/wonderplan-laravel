@@ -1,4 +1,4 @@
-<a  side class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark"> <!--begin::Sidebar Brand-->
+<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark"> <!--begin::Sidebar Brand-->
     <div class="sidebar-brand">
       <a href="javascript:void(0)" class="brand-link">
             <span class="brand-text fw-light">WonderPlan Admin</span>
